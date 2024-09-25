@@ -36,7 +36,8 @@ export default function Home() {
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 h-32">
-            A feature to store and retrieve long-term information.
+            An example application to extract, store and retrieve long-term
+            information from chat.
           </CardContent>
           <CardFooter>
             <Button className="w-full">Learn More</Button>
