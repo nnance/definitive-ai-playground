@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/header";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,10 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex min-h-screen w-full flex-col">
-          <Header />
-          <TooltipProvider>{children}</TooltipProvider>
-        </div>
+        <ThemeProvider attribute="class">
+          <div className="flex min-h-screen w-full flex-col">
+            <Header />
+            <TooltipProvider>{children}</TooltipProvider>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
