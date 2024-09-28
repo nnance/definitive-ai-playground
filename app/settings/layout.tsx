@@ -14,7 +14,7 @@ export default function Settings({
   const navItems = [
     { name: "General", href: "/settings" },
     { name: "API Keys", href: "/settings/apikeys" },
-    { name: "Integrations", href: "/settings/integrations" },
+    { name: "Models", href: "/settings/models" },
     { name: "Support", href: "/settings/support" },
     { name: "Organizations", href: "/settings/organizations" },
     { name: "Advanced", href: "/settings/advanced" },
