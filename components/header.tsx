@@ -1,16 +1,48 @@
+"use client";
+
 import Link from "next/link";
-import { CircleUser, Menu, Package2, Triangle } from "lucide-react";
+import { Menu, Package2, Triangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useTheme } from "next-themes";
+import { Check, Moon, Sun } from "lucide-react";
+
+function ThemeSelector() {
+  const { setTheme, theme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <span>Light</span>
+          {theme === "light" && <Check className="ml-auto h-4 w-4" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <span>Dark</span>
+          {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <span>System</span>
+          {theme === "system" && <Check className="ml-auto h-4 w-4" />}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function Header() {
   return (
@@ -99,25 +131,8 @@ export default function Header() {
           </nav>
         </SheetContent>
       </Sheet>
-      <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <div className="ml-auto flex-1 sm:flex-initial">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+      <div className="ml-auto flex-1 sm:flex-initial">
+        <ThemeSelector />
       </div>
     </header>
   );
