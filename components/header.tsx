@@ -13,6 +13,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
 import { Check, Moon, Sun } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 function ThemeSelector() {
   const { setTheme, theme } = useTheme();
@@ -45,6 +46,16 @@ function ThemeSelector() {
 }
 
 export default function Header() {
+  const pathname = usePathname();
+
+  const navItems = [
+    { name: "Home", href: "/" },
+    { name: "Playgrounds", href: "/playgrounds" },
+    { name: "Applications", href: "/applications" },
+    { name: "Games", href: "/games" },
+    { name: "Settings", href: "/settings" },
+  ];
+
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
@@ -54,36 +65,19 @@ export default function Header() {
         >
           <Triangle className="size-5 fill-foreground" />
         </Link>
-        <Link
-          href="#"
-          className="text-foreground transition-colors hover:text-foreground"
-        >
-          Home
-        </Link>
-        <Link
-          href="#"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Playgrounds
-        </Link>
-        <Link
-          href="#"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Applications
-        </Link>
-        <Link
-          href="#"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Games
-        </Link>
-        <Link
-          href="/settings"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Settings
-        </Link>
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`${
+              pathname === item.href
+                ? "text-foreground"
+                : "text-muted-foreground"
+            } transition-colors hover:text-foreground`}
+          >
+            {item.name}
+          </Link>
+        ))}
       </nav>
       <Sheet>
         <SheetTrigger asChild>
@@ -99,7 +93,7 @@ export default function Header() {
               className="flex items-center gap-2 text-lg font-semibold"
             >
               <Package2 className="h-6 w-6" />
-              <span className="sr-only">Acme Inc</span>
+              <span className="sr-only">AI Playground</span>
             </Link>
             <Link
               href="#"
