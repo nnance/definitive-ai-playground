@@ -1,15 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { toast } from "sonner";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -20,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -28,6 +22,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { useLocalStorage } from "@/hooks/use-localstorage";
 
 enum Providers {
   OpenAI = "OpenAI",
@@ -59,49 +54,44 @@ const models = {
   Cohere: ["Command", "Command-Nightly"],
 };
 
-const FormSchema = z.object({
-  chatProvider: z.string(),
-  chatModel: z.string(),
-  reasoningProvider: z.string(),
-  reasoningModel: z.string(),
-  fastProvider: z.string(),
-  fastModel: z.string(),
-  accurateProvider: z.string(),
-  accurateModel: z.string(),
-});
-
 export default function AISettings() {
-  const [selectedProviders, setSelectedProviders] = useState<
-    Record<UseCases, Providers>
-  >({
-    chat: Providers.OpenAI,
-    reasoning: Providers.OpenAI,
-    fast: Providers.OpenAI,
-    accurate: Providers.OpenAI,
+  const [selectedProviders, setSelectedProviders] = useLocalStorage<
+    Record<UseCases, [Providers, string]>
+  >("useCaseProviders", {
+    chat: [Providers.OpenAI, models.OpenAI[0]],
+    reasoning: [Providers.OpenAI, models.OpenAI[0]],
+    fast: [Providers.OpenAI, models.OpenAI[0]],
+    accurate: [Providers.OpenAI, models.OpenAI[0]],
   });
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const { chat, reasoning, fast, accurate } = selectedProviders;
+  const form = useForm({
     defaultValues: {
-      chatProvider: "OpenAI",
-      chatModel: "GPT-3.5",
-      reasoningProvider: "OpenAI",
-      reasoningModel: "GPT-3.5",
-      fastProvider: "OpenAI",
-      fastModel: "GPT-3.5",
-      accurateProvider: "OpenAI",
-      accurateModel: "GPT-3.5",
+      chatProvider: chat[0],
+      chatModel: chat[1],
+      reasoningProvider: reasoning[0],
+      reasoningModel: reasoning[1],
+      fastProvider: fast[0],
+      fastModel: fast[1],
+      accurateProvider: accurate[0],
+      accurateModel: accurate[1],
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-    toast.success("Settings saved successfully!");
-  }
+  const updateProvider = (useCase: UseCases, provider: Providers) => {
+    const model = models[provider][0];
+    setSelectedProviders((prev) => ({
+      ...prev,
+      [useCase]: [provider, model],
+    }));
+    // form.setValue(`${useCase}Model`, model);
+  };
 
-  const updateModels = (useCase: UseCases, provider: Providers) => {
-    setSelectedProviders((prev) => ({ ...prev, [useCase]: provider }));
-    form.setValue(`${useCase}Model`, models[provider][0]);
+  const updateModel = (useCase: UseCases, model: string) => {
+    setSelectedProviders((prev) => ({
+      ...prev,
+      [useCase]: [form.getValues(`${useCase}Provider`), model],
+    }));
   };
 
   const renderUseCase = (useCase: UseCases, label: string) => (
@@ -122,9 +112,9 @@ export default function AISettings() {
               <Select
                 onValueChange={(value) => {
                   field.onChange(value);
-                  updateModels(useCase, value as Providers);
+                  updateProvider(useCase, value as Providers);
                 }}
-                defaultValue={field.value}
+                value={field.value}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -148,14 +138,20 @@ export default function AISettings() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Model</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  updateModel(useCase, value);
+                }}
+                value={field.value}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a model" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {models[selectedProviders[useCase]].map((model) => (
+                  {models[form.getValues(`${useCase}Provider`)].map((model) => (
                     <SelectItem key={model} value={model}>
                       {model}
                     </SelectItem>
@@ -171,7 +167,7 @@ export default function AISettings() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>AI Model Settings</CardTitle>
@@ -185,9 +181,6 @@ export default function AISettings() {
             {renderUseCase(UseCases.Fast, "Fast")}
             {renderUseCase(UseCases.Accurate, "Accurate")}
           </CardContent>
-          <CardFooter>
-            <Button type="submit">Save Settings</Button>
-          </CardFooter>
         </Card>
       </form>
     </Form>

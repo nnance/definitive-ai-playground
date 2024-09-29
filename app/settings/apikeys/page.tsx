@@ -13,13 +13,16 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 
 export default function AiSettings() {
-  const [apiKeys, setApiKeys] = useLocalStorage("aiApiKeys", {
-    openai: "",
-    anthropic: "",
-    google: "",
-    cohere: "",
-    huggingface: "",
-  });
+  const [apiKeys, setApiKeys] = useLocalStorage<Record<string, string>>(
+    "aiApiKeys",
+    {
+      openai: "",
+      anthropic: "",
+      google: "",
+      cohere: "",
+      huggingface: "",
+    }
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

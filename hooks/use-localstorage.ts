@@ -1,11 +1,8 @@
 import { SetStateAction, useState } from "react";
 
 // Custom hook for managing settings in local storage
-export const useLocalStorage = (
-  key: string,
-  initialValue: Record<string, string>
-) => {
-  const [storedValue, setStoredValue] = useState<Record<string, string>>(() => {
+export const useLocalStorage = <T>(key: string, initialValue: T) => {
+  const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === "undefined") {
       return initialValue;
     }
@@ -18,7 +15,7 @@ export const useLocalStorage = (
     }
   });
 
-  const setValue = (value: SetStateAction<Record<string, string>>) => {
+  const setValue = (value: SetStateAction<T>) => {
     try {
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;
