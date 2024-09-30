@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -30,6 +29,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+
+const LOCAL_STORAGE_KEY = "useCaseModels";
 
 const providers = ["OpenAI", "Anthropic", "Google", "Cohere"] as const;
 type Provider = (typeof providers)[number];
@@ -67,9 +69,19 @@ const FormSchema = z.object({
 type FormValues = z.infer<typeof FormSchema>;
 
 export default function AISettings() {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
+  const { toast } = useToast();
+  const getInitialValues = (): FormValues => {
+    if (typeof window !== "undefined") {
+      const storedSettings = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedSettings) {
+        try {
+          return JSON.parse(storedSettings);
+        } catch (error) {
+          console.error("Failed to parse stored settings:", error);
+        }
+      }
+    }
+    return {
       chatProvider: "OpenAI",
       chatModel: "GPT-3.5",
       reasoningProvider: "OpenAI",
@@ -78,16 +90,24 @@ export default function AISettings() {
       fastModel: "GPT-3.5",
       accurateProvider: "OpenAI",
       accurateModel: "GPT-3.5",
-    },
+    };
+  };
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: getInitialValues(),
   });
 
   const [selectedProviders, setSelectedProviders] = useState<
     Record<UseCase, Provider>
-  >({
-    chat: "OpenAI",
-    reasoning: "OpenAI",
-    fast: "OpenAI",
-    accurate: "OpenAI",
+  >(() => {
+    const initialValues = getInitialValues();
+    return {
+      chat: initialValues.chatProvider,
+      reasoning: initialValues.reasoningProvider,
+      fast: initialValues.fastProvider,
+      accurate: initialValues.accurateProvider,
+    };
   });
 
   useEffect(() => {
@@ -107,8 +127,12 @@ export default function AISettings() {
   }, [selectedProviders, form]);
 
   function onSubmit(data: FormValues) {
-    console.log(data);
-    toast.success("Settings saved successfully!");
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    toast({
+      title: "Settings saved",
+      description: "Your Model Use Cases successfully updated and stored.",
+      duration: 3000,
+    });
   }
 
   const updateProvider = (useCase: UseCase, provider: Provider) => {
@@ -201,7 +225,7 @@ export default function AISettings() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {([...useCases] as UseCase[]).map((useCase) =>
+            {[...useCases].map((useCase) =>
               renderUseCase(
                 useCase,
                 useCase.charAt(0).toUpperCase() + useCase.slice(1)
