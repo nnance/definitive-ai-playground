@@ -47,9 +47,9 @@ export default function AiSettings() {
   return (
     <Card x-chunk="dashboard-04-chunk-1">
       <CardHeader>
-        <CardTitle>AI Platform Settings</CardTitle>
+        <CardTitle>Provider Settings</CardTitle>
         <CardDescription>
-          Enter your API keys for each supported AI platform.
+          Enter your API keys for each supported AI provider.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSave}>

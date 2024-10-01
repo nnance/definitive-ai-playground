@@ -12,12 +12,9 @@ export default function Settings({
   const pathname = usePathname();
 
   const navItems = [
-    { name: "General", href: "/settings" },
+    { name: "Personalization", href: "/settings" },
     { name: "API Keys", href: "/settings/apikeys" },
     { name: "Models", href: "/settings/models" },
-    { name: "Support", href: "/settings/support" },
-    { name: "Organizations", href: "/settings/organizations" },
-    { name: "Advanced", href: "/settings/advanced" },
   ];
 
   return (

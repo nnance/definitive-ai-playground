@@ -219,7 +219,7 @@ export default function AISettings() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>AI Settings</CardTitle>
+            <CardTitle>AI Model Settings</CardTitle>
             <CardDescription>
               Configure AI providers and models for different use cases.
             </CardDescription>
