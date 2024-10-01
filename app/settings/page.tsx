@@ -33,6 +33,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useLocalStorage } from "@/hooks/use-localstorage";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -51,36 +52,35 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const STORAGE_KEY = "userSettings";
+const STORAGE_KEY = "personalizationSettings";
 
 export default function SettingsForm() {
+  const defaultValues: FormValues = {
+    name: "",
+    birthDate: new Date(),
+    birthPlace: "",
+    address: "",
+  };
+
+  const [storedSettings, setStoredSettings] = useLocalStorage<FormValues>(
+    STORAGE_KEY,
+    defaultValues
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      birthPlace: "",
-      address: "",
-    },
+    defaultValues,
   });
 
   useEffect(() => {
-    const storedSettings = localStorage.getItem(STORAGE_KEY);
-    if (storedSettings) {
-      const parsedSettings = JSON.parse(storedSettings);
-      if (parsedSettings.birthDate) {
-        parsedSettings.birthDate = new Date(parsedSettings.birthDate);
-      }
-      form.reset(parsedSettings);
+    if (storedSettings.birthDate) {
+      storedSettings.birthDate = new Date(storedSettings.birthDate);
     }
-  }, [form]);
+    form.reset(storedSettings);
+  }, [form, storedSettings]);
 
   function onSubmit(values: FormValues) {
-    const settingsToStore = {
-      ...values,
-      birthDate: values.birthDate.toISOString(),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settingsToStore));
-    console.log(values);
+    setStoredSettings(values);
     toast({
       title: "Settings updated",
       description: "Your personal information has been saved.",
@@ -90,9 +90,7 @@ export default function SettingsForm() {
   return (
     <Card x-chunk="dashboard-04-chunk-1">
       <CardHeader>
-        <CardTitle className="text-3xl font-bold">
-          Personalization Settings
-        </CardTitle>
+        <CardTitle>Personalization Settings</CardTitle>
         <CardDescription>
           Manage your personal information to enhance your AI Playground
           experience.
@@ -204,11 +202,7 @@ export default function SettingsForm() {
         </Form>
       </CardContent>
       <CardFooter>
-        <Button
-          type="submit"
-          onClick={form.handleSubmit(onSubmit)}
-          className="ml-auto"
-        >
+        <Button type="submit" className="ml-auto">
           Save Settings
         </Button>
       </CardFooter>

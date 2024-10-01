@@ -6,13 +6,8 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
     if (typeof window === "undefined") {
       return initialValue;
     }
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.log(error);
-      return initialValue;
-    }
+    const item = window.localStorage.getItem(key);
+    return item ? JSON.parse(item) : initialValue;
   });
 
   const setValue = (value: SetStateAction<T>) => {

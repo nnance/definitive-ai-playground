@@ -70,7 +70,8 @@ export default function Header() {
             key={item.href}
             href={item.href}
             className={`${
-              pathname === item.href
+              (item.href === "/" && pathname === item.href) ||
+              (item.href !== "/" && pathname.indexOf(item.href) === 0)
                 ? "text-foreground"
                 : "text-muted-foreground"
             } transition-colors hover:text-foreground`}

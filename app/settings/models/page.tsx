@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useLocalStorage } from "@/hooks/use-localstorage";
 
 const LOCAL_STORAGE_KEY = "useCaseModels";
 
@@ -70,18 +71,9 @@ type FormValues = z.infer<typeof FormSchema>;
 
 export default function AISettings() {
   const { toast } = useToast();
-  const getInitialValues = (): FormValues => {
-    if (typeof window !== "undefined") {
-      const storedSettings = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (storedSettings) {
-        try {
-          return JSON.parse(storedSettings);
-        } catch (error) {
-          console.error("Failed to parse stored settings:", error);
-        }
-      }
-    }
-    return {
+  const [modelSettings, setModelSettings] = useLocalStorage<FormValues>(
+    LOCAL_STORAGE_KEY,
+    {
       chatProvider: "OpenAI",
       chatModel: "GPT-3.5",
       reasoningProvider: "OpenAI",
@@ -90,24 +82,21 @@ export default function AISettings() {
       fastModel: "GPT-3.5",
       accurateProvider: "OpenAI",
       accurateModel: "GPT-3.5",
-    };
-  };
+    }
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
-    defaultValues: getInitialValues(),
+    defaultValues: modelSettings,
   });
 
   const [selectedProviders, setSelectedProviders] = useState<
     Record<UseCase, Provider>
-  >(() => {
-    const initialValues = getInitialValues();
-    return {
-      chat: initialValues.chatProvider,
-      reasoning: initialValues.reasoningProvider,
-      fast: initialValues.fastProvider,
-      accurate: initialValues.accurateProvider,
-    };
+  >({
+    chat: modelSettings.chatProvider,
+    reasoning: modelSettings.reasoningProvider,
+    fast: modelSettings.fastProvider,
+    accurate: modelSettings.accurateProvider,
   });
 
   useEffect(() => {
@@ -127,7 +116,7 @@ export default function AISettings() {
   }, [selectedProviders, form]);
 
   function onSubmit(data: FormValues) {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    setModelSettings(data);
     toast({
       title: "Settings saved",
       description: "Your Model Use Cases successfully updated and stored.",
@@ -233,7 +222,9 @@ export default function AISettings() {
             )}
           </CardContent>
           <CardFooter>
-            <Button type="submit">Save Settings</Button>
+            <Button type="submit" className="ml-auto">
+              Save Settings
+            </Button>
           </CardFooter>
         </Card>
       </form>
