@@ -4,6 +4,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/header";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -35,6 +36,7 @@ export default function RootLayout({
           <div className="flex min-h-screen w-full flex-col">
             <Header />
             <TooltipProvider>{children}</TooltipProvider>
+            <Toaster />
           </div>
         </ThemeProvider>
       </body>
